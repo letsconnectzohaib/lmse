@@ -1,129 +1,116 @@
-# Disk & Boot Troubleshooting Guide
+# Data Recovery Guides
 
-A step-by-step guide for diagnosing disk encryption, filesystem issues, and boot problems.
+Complete guides for recovering data from corrupted, encrypted, or unbootable Windows systems.
 
 ---
 
-## PART 1 — Boot into Linux (Live USB preferred)
+## Quick Navigation
 
-When you're inside Linux, open terminal and run:
+| Guide | When to Use |
+|-------|-------------|
+| [Linux Data Recovery](linux-data-recovery.md) | Boot from Linux Live USB, mount drives, copy files |
+| [Windows Recovery](windows-recovery.md) | Use Windows Recovery USB for boot repair |
+| [BitLocker Guide](bitlocker-guide.md) | Handle BitLocker encrypted drives |
+| [No-Key Recovery](no-key-recovery.md) | Last resort when no keys/passwords available |
 
-### 1. Check if disk is detected
+---
+
+## Quick Diagnosis
+
+### From Linux Live USB:
 
 ```bash
-lsblk
-```
-
-**Look for:**
-- `sda` or `nvme0n1`
-- partitions like `sda1`, `sda2`
-
-### 2. Check filesystem type (VERY IMPORTANT)
-
-```bash
+# Check disks
 lsblk -f
 ```
 
-**Tell me what shows under FSTYPE:**
-
-| Output | Meaning |
-|--------|---------|
-| `ntfs` | normal Windows |
-| `crypto_LUKS` | Linux encryption |
-| `unknown` / blank | damaged or BitLocker |
-| `vfat` (small partition) | EFI boot |
-
-### 3. Try mounting Windows manually
-
-> Replace partition name if needed
-
-```bash
-sudo mkdir /mnt/test
-sudo mount /dev/sda2 /mnt/test
-```
-
-**Result possibilities:**
-
-| Result | Meaning |
-|--------|---------|
-| ✅ Mounts successfully | `ls /mnt/test` → You'll see Windows files = **GOOD (no encryption)** |
-| 🔐 Asks for password | **Encryption detected (very important)** |
-| ❌ Error | Run: `sudo ntfsfix /dev/sda2` |
-
-### 4. Check disk health (quick)
-
-```bash
-dmesg | grep -i error
-```
-
-**Look for:**
-- `I/O errors` → hardware issue
-- `NTFS errors` → filesystem problem
+| FSTYPE | Meaning | Next Step |
+|--------|---------|-----------|
+| `ntfs` | Normal Windows | [Linux Guide](linux-data-recovery.md) |
+| `unknown` / blank | Damaged or BitLocker | [BitLocker Guide](bitlocker-guide.md) |
+| `BitLocker` | Encrypted | [BitLocker Guide](bitlocker-guide.md) |
+| `crypto_LUKS` | Linux encryption | Password required |
 
 ---
 
-## PART 2 — BIOS CHECK (super important)
+## Common Scenarios
 
-Go into BIOS and note:
+### Scenario 1: Windows Won't Boot, No Encryption
 
-| Setting | Value |
-|---------|-------|
-| Boot Mode | UEFI or Legacy |
-| Secure Boot | ON / OFF |
-| SSD Visibility | Is SSD visible? |
+1. Boot Linux Live USB
+2. Mount Windows partition
+3. Copy files to external USB
+4. → [Linux Data Recovery Guide](linux-data-recovery.md)
 
-**Tell me exactly what these are.**
+### Scenario 2: BitLocker Encrypted Drive
+
+1. Check [BitLocker Guide](bitlocker-guide.md)
+2. Find recovery key in Microsoft account
+3. Use `dislocker` from Linux or `manage-bde` from Windows Recovery
+
+### Scenario 3: No Recovery Key Available
+
+1. Try PhotoRec for raw file recovery
+2. Check Microsoft account one more time
+3. Consider professional recovery if data is critical
+4. → [No-Key Recovery Guide](no-key-recovery.md)
+
+### Scenario 4: Boot Issues Only
+
+1. Windows Recovery USB
+2. Run `bootrec` commands
+3. Run `chkdsk`
+4. → [Windows Recovery Guide](windows-recovery.md)
 
 ---
 
-## PART 3 — Windows Recovery (USB)
+## Emergency Quick Commands
 
-Boot Windows USB → Command Prompt
+### Linux:
 
-### 5. Check BitLocker status
+```bash
+# List drives
+lsblk -f
+
+# Mount Windows drive
+sudo mount /dev/sda2 /mnt/windows
+
+# Copy files
+sudo cp -r /mnt/windows/Users/Name/Documents /mnt/usb/
+```
+
+### Windows Recovery:
 
 ```cmd
+# Check BitLocker
 manage-bde -status
-```
 
-**Look for:**
-- `Locked` / `Unlocked`
-- `Protection ON`
-
-### 6. Try disk check
-
-```cmd
-chkdsk C: /f /r
-```
-
-### 7. Try boot repair
-
-```cmd
+# Fix boot
 bootrec /fixmbr
-bootrec /fixboot
 bootrec /rebuildbcd
-```
 
-### 8. If UEFI system (important)
-
-```cmd
-bcdboot C:\Windows /f UEFI
+# Disk check
+chkdsk C: /f
 ```
 
 ---
 
-## WHAT TO REPORT BACK
+## Tools Overview
 
-Just send:
+| Tool | Platform | Purpose |
+|------|----------|---------|
+| `dislocker` | Linux | Mount BitLocker drives |
+| `ntfsfix` | Linux | Repair NTFS errors |
+| `photorec` | Linux | Raw file recovery |
+| `bootrec` | Windows | Boot repair |
+| `manage-bde` | Windows | BitLocker control |
+| `chntpw` | Linux | Windows password reset |
 
-### From Linux:
-- Output of: `lsblk`
-- Output of: `lsblk -f`
-- What happens when mounting
+---
 
-### From BIOS:
-- UEFI or Legacy?
-- Secure Boot ON/OFF
+## Important Notes
 
-### From Windows CMD:
-- Output of: `manage-bde -status`
+- **BitLocker without key = unrecoverable** (by design)
+- Always work on disk images, not original drives
+- Check Microsoft account for recovery keys: https://account.microsoft.com/devices/recoverykey
+- PhotoRec recovers files but loses folder structure and filenames
