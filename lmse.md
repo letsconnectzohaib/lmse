@@ -6,12 +6,34 @@ Complete guides for recovering data from corrupted, encrypted, or unbootable Win
 
 ## Quick Navigation
 
+### Core Recovery
+
 | Guide | When to Use |
 |-------|-------------|
 | [Linux Data Recovery](linux-data-recovery.md) | Boot from Linux Live USB, mount drives, copy files |
 | [Windows Recovery](windows-recovery.md) | Use Windows Recovery USB for boot repair |
 | [BitLocker Guide](bitlocker-guide.md) | Handle BitLocker encrypted drives |
 | [No-Key Recovery](no-key-recovery.md) | Last resort when no keys/passwords available |
+
+### Advanced Methods
+
+| Guide | When to Use |
+|-------|-------------|
+| [BlackArch Setup](blackarch-setup.md) | Configure BlackArch for recovery operations |
+| [DD and Imaging](dd-and-imaging.md) | Create disk images with dd and ddrescue |
+| [Partition Recovery](partition-recovery.md) | Recover lost/deleted partitions |
+| [Filesystem Repair](filesystem-repair.md) | Repair NTFS, ext4, FAT filesystems |
+| [Boot Repair](boot-repair.md) | Fix GRUB, Windows bootloader, UEFI issues |
+| [Network Recovery](network-recovery.md) | Recover over SSH, NFS, SMB |
+| [Hardware Diagnostics](hardware-diagnostics.md) | Test drives, check SMART, find bad sectors |
+| [Forensic Tools](forensic-tools.md) | Evidence preservation, investigation |
+
+### Quick Reference
+
+| Guide | When to Use |
+|-------|-------------|
+| [Quick Cheat Sheet](quick-cheat-sheet.md) | Fast command reference |
+| [Common Errors](common-errors.md) | Fix specific error messages |
 
 ---
 
